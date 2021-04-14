@@ -5,7 +5,6 @@ include: "/views/*.view.lkml"                # include all views in the views/ f
 
 explore: gcp_billing_export {
   join: gcp_billing_export__labels {
-    view_label: "Gcp Billing Export Ctg: Labels"
     sql: LEFT JOIN UNNEST(${gcp_billing_export.labels}) as gcp_billing_export__labels ;;
     relationship: one_to_many
   }

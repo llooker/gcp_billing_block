@@ -1,8 +1,9 @@
 view: gcp_billing_export {
   view_label: "Billing"
-  sql_table_name: (select *, GENERATE_UUID() as uuid from `leigha-bq-dev.gcp_billing.gcp_billing_export_ctg`);;
+  sql_table_name: `leigha-bq-dev.gcp_billing.gcp_billing_export_ctg`;;
 
   dimension_group: _partitiondate {
+    hidden: yes
     type: time
     group_label: "Partition Fields"
     timeframes: [
@@ -19,6 +20,7 @@ view: gcp_billing_export {
   }
 
   dimension_group: _partitiontime {
+    description: "Partition column for the table - filter here to leverage partitions"
     group_label: "Partition Fields"
     type: time
     timeframes: [
@@ -37,7 +39,7 @@ view: gcp_billing_export {
   dimension: pk {
     hidden: no
     primary_key: yes
-    sql: ${TABLE}.uuid;;
+    sql: CONCAT(${export_raw},${sku__id},${billing_account_id});;
   }
 
   dimension: adjustment_info__description {
@@ -185,6 +187,10 @@ view: gcp_billing_export {
       url: "https://console.cloud.google.com/home/dashboard?project={{ project__id._value }}"
       icon_url: "https://i.pinimg.com/originals/92/b2/66/92b266df967b8540c94301eacdec391b.png"
     }
+    link: {
+      label: "Project Deep Dive"
+      url: "/dashboards/"
+    }
   }
 
   dimension: project__number {
@@ -265,7 +271,8 @@ view: gcp_billing_export {
       week,
       month,
       quarter,
-      year
+      year,
+      month_name
     ]
     sql: ${TABLE}.usage_end_time ;;
   }
@@ -286,6 +293,7 @@ view: gcp_billing_export {
   }
 
   measure: count {
+    hidden: yes
     type: count
     drill_fields: [project__name]
   }
@@ -293,14 +301,16 @@ view: gcp_billing_export {
   measure: total_cost {
     type: sum
     sql: ${cost} ;;
-    value_format_name: usd
+    value_format: "0.##"
+    html: {{ currency_symbol._value }}{{ rendered_value }};;
     drill_fields: [project__name,service__description,total_cost]
   }
 
   measure: total_net_cost {
     type: number
     sql: ${total_cost} - ${gcp_billing_export__credits.total_amount};;
-    value_format_name: usd
+    value_format: "0.##"
+    html: {{ currency_symbol._value }}{{ rendered_value }};;
     drill_fields: [project__name,service__description,total_cost, gcp_billing_export__credits.total_amount]
   }
 }
@@ -358,14 +368,16 @@ view: gcp_billing_export__credits {
   measure: total_amount {
     label: "Total Credit Amount"
     type: sum
-    value_format_name: usd
+    value_format: "0.##"
+    html: {{ currency_symbol._value }}{{ rendered_value }};;
     sql: -1*${amount} ;;
     drill_fields: [type,total_amount]
   }
 
   measure: total_sustained_use_discount {
     type: sum
-    value_format_name: usd
+    value_format: "0.##"
+    html: {{ currency_symbol._value }}{{ rendered_value }};;
     sql: -1*${amount} ;;
     filters: [type: "SUSTAINED_USAGE_DISCOUNT"]
     drill_fields: [id,name,total_amount]
@@ -373,7 +385,8 @@ view: gcp_billing_export__credits {
 
   measure: total_committed_use_discount {
     type: sum
-    value_format_name: usd
+    value_format: "0.##"
+    html: {{ currency_symbol._value }}{{ rendered_value }};;
     sql: -1*${amount} ;;
     filters: [type: "COMMITTED_USAGE_DISCOUNT, COMMITTED_USAGE_DISCOUNT_DOLLAR_BASE"]
     drill_fields: [id,name,total_amount]
@@ -381,7 +394,8 @@ view: gcp_billing_export__credits {
 
   measure: total_promotional_credit {
     type: sum
-    value_format_name: usd
+    value_format: "0.##"
+    html: {{ currency_symbol._value }}{{ rendered_value }};;
     sql: -1*${amount} ;;
     filters: [type: "PROMOTION"]
     drill_fields: [id,name,total_amount]

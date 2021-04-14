@@ -1,15 +1,16 @@
-###  Period over Period Analysis, ref: https://help.looker.com/hc/en-us/articles/360050104194-Methods-for-Period-Over-Period-PoP-Analysis-in-Looker
-
-
 include: "gcp_billing_export.view.lkml"
 
 view: +gcp_billing_export {
-  extends: [gcp_billing_export]
   ###################### Period over Period Reporting Metrics ######################
 
   parameter: period {
+    label: "Timeframe"
     view_label: "Period over Period"
     type: unquoted
+    allowed_value: {
+      label: "Week to Date"
+      value: "Week"
+    }
     allowed_value: {
       label: "Month to Date"
       value: "Month"
