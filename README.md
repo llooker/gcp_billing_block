@@ -13,3 +13,9 @@ This block is modeled on the Google Cloud Billing Export schema. You can read [d
 
 ### Leveraging Custom Variables
 
+### Incoporating Folder Hierarchy and Project Owners
+
+### Including Cost Predictions
+
+### Taking Action on Remcommendations
+
