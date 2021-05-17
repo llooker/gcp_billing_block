@@ -36,18 +36,36 @@ view: gcp_billing_export {
     sql: ${TABLE}._PARTITIONTIME ;;
   }
 
-  dimension: pk {
-    hidden: no
-    primary_key: yes
-    sql: CONCAT(IFNULL(CAST(${export_raw} as string), ''),
-                IFNULL(${sku__id}, ''),
-                IFNULL(${service__id}, ''),
-                IFNULL(${project__id}, ''),
-                IFNULL(${cost_type}, ''),
-                IFNULL(${location__region}, ''),
-                IFNULL(CAST(${usage__amount} as string), ''),
-                IFNULL(CAST(${usage_start_raw} as string), ''));;
-  }
+  # dimension: pk {
+  #   hidden: no
+  #   primary_key: yes
+  #   sql: CONCAT(
+  #       IFNULL(${billing_account_id}, ''),
+  #       IFNULL(CAST(${invoice_month} as string), ''),
+  #       IFNULL(${cost_type}, ''),
+  #       IFNULL(${service__id}, ''),
+  #       IFNULL(${sku__id}, ''),
+  #       IFNULL(CAST(${usage_start_raw} as string), ''),
+  #       IFNULL(${TABLE}.project.id, ''),
+  #       IFNULL(CAST(${labels_string} as string), ''),
+  #       IFNULL(CAST(${system_labels_string} as string), ''),
+  #       IFNULL(${location__location}, ''),
+  #       IFNULL(${adjustment_info__id}, ''),
+  #       IFNULL(CAST(${export_raw} as string), ''),
+  #       IFNULL(CAST(${currency} as string), ''));;
+  # }
+
+  # dimension: labels_string {
+  #   hidden: no
+  #   type: string
+  #   sql: (SELECT string_agg(concat(key,':',value)) FROM UNNEST(${labels})) ;;
+  # }
+
+  # dimension: system_labels_string {
+  #   hidden: no
+  #   type: string
+  #   sql: (SELECT string_agg(concat(key,':',value)) FROM UNNEST(${system_labels})) ;;
+  # }
 
   dimension: adjustment_info__description {
     type: string
@@ -200,12 +218,12 @@ view: gcp_billing_export {
     }
   }
 
-  dimension: project__number {
-    type: string
-    sql: ${TABLE}.project.number ;;
-    group_label: "Project"
-    group_item_label: "Number"
-  }
+  # dimension: project__number {
+  #   type: string
+  #   sql: ${TABLE}.project.number ;;
+  #   group_label: "Project"
+  #   group_item_label: "Number"
+  # }
 
   dimension: service__description {
     label: "Service Type"
@@ -320,10 +338,49 @@ view: gcp_billing_export {
 
   measure: total_net_cost {
     type: number
-    sql: ${total_cost} - ${gcp_billing_export__credits.total_amount};;
+    sql: ${total_cost} - ${total_amount};;
     value_format: "#,##0.00"
     html: {{ currency_symbol._value }}{{ rendered_value }};;
     drill_fields: [project__name,service__description,total_cost, gcp_billing_export__credits.total_amount]
+  }
+
+  measure: total_amount {
+    label: "Total Credit Amount"
+    type: sum
+    value_format: "#,##0.00"
+    html: {{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }};;
+    sql: -1*${gcp_billing_export__credits.amount} ;;
+    drill_fields: [gcp_billing_export__credits.type,gcp_billing_export__credits.total_amount]
+  }
+
+  measure: total_sustained_use_discount {
+    view_label: "Credits"
+    type: sum
+    value_format: "#,##0.00"
+    html: {{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }};;
+    sql: -1*${gcp_billing_export__credits.amount} ;;
+    filters: [gcp_billing_export__credits.type: "SUSTAINED_USAGE_DISCOUNT"]
+    drill_fields: [gcp_billing_export__credits.id,gcp_billing_export__credits.name,total_amount]
+  }
+
+  measure: total_committed_use_discount {
+    view_label: "Credits"
+    type: sum
+    value_format: "#,##0.00"
+    html: {{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }};;
+    sql: -1*${gcp_billing_export__credits.amount} ;;
+    filters: [gcp_billing_export__credits.type: "COMMITTED_USAGE_DISCOUNT, COMMITTED_USAGE_DISCOUNT_DOLLAR_BASE"]
+    drill_fields: [gcp_billing_export__credits.id,gcp_billing_export__credits.name,total_amount]
+  }
+
+  measure: total_promotional_credit {
+    view_label: "Credits"
+    type: sum
+    value_format: "#,##0.00"
+    html: {{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }};;
+    sql: -1*${gcp_billing_export__credits.amount} ;;
+    filters: [gcp_billing_export__credits.type: "PROMOTION"]
+    drill_fields: [gcp_billing_export__credits.id,gcp_billing_export__credits.name,total_amount]
   }
 }
 
@@ -339,6 +396,12 @@ view: gcp_billing_export__labels {
     group_label: "Billing Export"
     type: string
     sql: ${TABLE}.value ;;
+  }
+
+  measure: key_value {
+    hidden: yes
+    type: string
+    sql: STRING_AGG(concat(${key},':',${value}),',') ;;
   }
 }
 
@@ -370,42 +433,6 @@ view: gcp_billing_export__credits {
     type: string
     sql: ${TABLE}.type ;;
     drill_fields: [name]
-  }
-
-  measure: total_amount {
-    label: "Total Credit Amount"
-    type: sum
-    value_format: "#,##0.00"
-    html: {{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }};;
-    sql: -1*${amount} ;;
-    drill_fields: [type,total_amount]
-  }
-
-  measure: total_sustained_use_discount {
-    type: sum
-    value_format: "#,##0.00"
-    html: {{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }};;
-    sql: -1*${amount} ;;
-    filters: [type: "SUSTAINED_USAGE_DISCOUNT"]
-    drill_fields: [id,name,total_amount]
-  }
-
-  measure: total_committed_use_discount {
-    type: sum
-    value_format: "#,##0.00"
-    html: {{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }};;
-    sql: -1*${amount} ;;
-    filters: [type: "COMMITTED_USAGE_DISCOUNT, COMMITTED_USAGE_DISCOUNT_DOLLAR_BASE"]
-    drill_fields: [id,name,total_amount]
-  }
-
-  measure: total_promotional_credit {
-    type: sum
-    value_format: "#,##0.00"
-    html: {{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }};;
-    sql: -1*${amount} ;;
-    filters: [type: "PROMOTION"]
-    drill_fields: [id,name,total_amount]
   }
 }
 
