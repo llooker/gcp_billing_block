@@ -1,6 +1,18 @@
 view: gcp_billing_export {
   view_label: "Billing"
-  sql_table_name: `data-analytics-pocs.public.billing_dashboard_export`;;
+  derived_table: {
+    datagroup_trigger: billing_datagroup
+    increment_key: "export_date"
+    increment_offset: 0
+    sql: select *, generate_uuid() as pk from `data-analytics-pocs.public.billing_dashboard_export`
+    WHERE {% incrementcondition %} export_time {% endincrementcondition %};;
+  }
+
+  dimension: pk {
+    hidden: yes
+    primary_key: yes
+    sql: ${TABLE}.pk ;;
+  }
 
   dimension_group: _partitiondate {
     hidden: yes
@@ -285,6 +297,34 @@ view: gcp_billing_export {
     sql: ${TABLE}.usage.unit ;;
     group_label: "Usage"
     group_item_label: "Unit"
+  }
+
+  dimension: usage__calculated_unit {
+    type: string
+    sql: CASE
+      -- VCPU RAM
+        WHEN ${usage__pricing_unit} = 'gibibyte hour' THEN 'GB'
+      -- VCPU Cores
+        WHEN ${usage__pricing_unit} = 'hour' THEN 'Count'
+      -- PD Storage
+      -- WHEN usage.pricing_unit = 'gibibyte month' THEN ROUND(SUM(usage.amount_in_pricing_units) * 30, 2)
+      ELSE ${usage__pricing_unit};;
+    group_label: "Usage"
+    group_item_label: "Calculated Unit"
+  }
+
+  measure: usage__amount_in_calculated_units {
+    type: sum
+    sql: CASE
+      -- VCPU RAM
+        WHEN usage.pricing_unit = 'gibibyte hour' THEN ${usage__amount_in_pricing_units}/24
+      -- VCPU Cores
+        WHEN usage.pricing_unit = 'hour' THEN ${usage__amount_in_pricing_units}/24
+      -- PD Storage
+      -- WHEN usage.pricing_unit = 'gibibyte month' THEN ROUND(SUM(usage.amount_in_pricing_units) * 30, 2)
+      ELSE
+    END ${usage__amount_in_pricing_units};;
+    group_item_label: "Total Amount in Calculated Units"
   }
 
   dimension_group: usage_end {
