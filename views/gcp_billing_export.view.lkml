@@ -4,7 +4,7 @@ view: gcp_billing_export {
     datagroup_trigger: billing_datagroup
     increment_key: "export_date"
     increment_offset: 0
-    sql: select *, generate_uuid() as pk from `data-analytics-pocs.public.billing_dashboard_export`
+    sql: select *, generate_uuid() as pk from `anilgcp-co-dev.billing.gcp_billing_export_public`
     WHERE {% incrementcondition %} export_time {% endincrementcondition %};;
   }
 
@@ -308,12 +308,13 @@ view: gcp_billing_export {
         WHEN ${usage__pricing_unit} = 'hour' THEN 'Count'
       -- PD Storage
       -- WHEN usage.pricing_unit = 'gibibyte month' THEN ROUND(SUM(usage.amount_in_pricing_units) * 30, 2)
-      ELSE ${usage__pricing_unit};;
+      ELSE ${usage__pricing_unit} END;;
     group_label: "Usage"
     group_item_label: "Calculated Unit"
   }
 
   measure: usage__amount_in_calculated_units {
+    value_format_name: decimal_2
     type: sum
     sql: CASE
       -- VCPU RAM
@@ -322,8 +323,8 @@ view: gcp_billing_export {
         WHEN usage.pricing_unit = 'hour' THEN ${usage__amount_in_pricing_units}/24
       -- PD Storage
       -- WHEN usage.pricing_unit = 'gibibyte month' THEN ROUND(SUM(usage.amount_in_pricing_units) * 30, 2)
-      ELSE
-    END ${usage__amount_in_pricing_units};;
+      ELSE ${usage__amount_in_pricing_units}
+    END;;
     group_item_label: "Total Amount in Calculated Units"
   }
 
