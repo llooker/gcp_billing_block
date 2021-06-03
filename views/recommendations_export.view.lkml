@@ -2,6 +2,7 @@ view: recommendations_export {
   sql_table_name: `anilgcp-co-dev.recommender.recommendations_export_v2`;;
 
   dimension_group: _partitiondate {
+    hidden: yes
     type: time
     timeframes: [
       raw,
@@ -17,6 +18,7 @@ view: recommendations_export {
   }
 
   dimension_group: _partitiontime {
+    hidden: yes
     type: time
     timeframes: [
       raw,
@@ -193,6 +195,7 @@ view: recommendations_export {
   }
 
   dimension: recommender {
+    label: "ID"
     type: string
     description: "Recommender ID of the recommender that has produced this recommendation"
     sql: ${TABLE}.recommender ;;
@@ -211,6 +214,7 @@ view: recommendations_export {
   }
 
   dimension: state {
+    hidden: yes
     type: string
     description: "Output only. The state of the recommendation:
     STATE_UNSPECIFIED:
@@ -243,39 +247,59 @@ view: recommendations_export {
   }
 
   dimension: service {
-    sql: CASE WHEN REGEXP_CONTAINS(${recommender},r'%google.compute.%') THEN 'Compute Engine' ELSE '' END;;
+    sql: CASE WHEN REGEXP_CONTAINS(${recommender},r'google.compute.') THEN 'Compute Engine' ELSE '' END;;
+    drill_fields: [category]
   }
 
   dimension: category {
-    sql: CASE WHEN REGEXP_CONTAINS(${recommender},r'%google.compute.disk.%') THEN 'Persistent Disk' ELSE 'VM' END;;
+    sql: CASE WHEN REGEXP_CONTAINS(${recommender},r'google.compute.disk.') THEN 'Persistent Disk' ELSE 'VM' END;;
+  }
+
+  dimension: project_name {
+    sql: (select REGEXP_EXTRACT(tr, r'.*googleapis.com/projects/(.*)/(?:regions|zones)/.*') from unnest(target_resources) as tr);;
+    link: {
+      label: "View Project Recommendations in Console"
+      url: "https://console.cloud.google.com/home/recommendations?project={{ cloud_entity_id._value }}"
+    }
+    link: {
+      label: "Project Cost Dashboard"
+      url: "/dashboards-next/63?Project%20ID={{ cloud_entity_id._value }}"
+    }
   }
 
   measure: count {
     hidden: yes
     type: count
-    drill_fields: [name]
+  }
+
+  measure: total_savings {
+    type: sum
+    sql: -1*${primary_impact__cost_projection__cost__units} ;;
+    html: <a href="#drillmenu" target="_self">{{ currency_symbol._value }}{{ rendered_value }}</a>;;
+    value_format: "#,##0.00"
+    drill_fields: [recommender, priority, project_name, service, category, recommender_subtype, description, last_refresh_date]
   }
 }
 
-view: recommendations_export__target_resources {
-  dimension: target_resources {
-    type: string
-    description: "Contains the fully qualified resource names for resources changed by the
-    operations in this recommendation. This field is always populated. ex:
-    [//cloudresourcemanager.googleapis.com/projects/foo]."
-    sql: recommendations_export__target_resources ;;
-  }
+# view: recommendations_export__target_resources {
+#   dimension: target_resources {
+#     type: string
+#     description: "Contains the fully qualified resource names for resources changed by the
+#     operations in this recommendation. This field is always populated. ex:
+#     [//cloudresourcemanager.googleapis.com/projects/foo]."
+#     sql: recommendations_export__target_resources ;;
+#   }
 
-  dimension: project_name {
-    sql: REGEXP_EXTRACT(${target_resources}, r'.*googleapis.com/projects/(.*)/(?:regions|zones)/.*');;
-  }
-}
+#   dimension: project_name {
+#     sql: REGEXP_EXTRACT(${target_resources}, r'.*googleapis.com/projects/(.*)/(?:regions|zones)/.*');;
+#   }
+# }
 
-view: recommendations_export__associated_insights {
-  dimension: recommendations_export__associated_insights {
-    type: string
-    description: "Insights associated with this recommendation. A project insight is represented as
-    projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE_ID]/insights/[insight_id]"
-    sql: recommendations_export__associated_insights ;;
-  }
-}
+# view: recommendations_export__associated_insights {
+#   dimension: recommendations_export__associated_insights {
+#     type: string
+#     description: "Insights associated with this recommendation. A project insight is represented as
+#     projects/[PROJECT_NUMBER]/locations/[LOCATION]/insightTypes/[INSIGHT_TYPE_ID]/insights/[insight_id]"
+#     sql: recommendations_export__associated_insights ;;
+#   }
+# }

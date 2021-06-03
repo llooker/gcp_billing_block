@@ -1,4 +1,5 @@
 connection: "leigha-bq-dev"
+label: "Google Cloud Billing"
 
 include: "/views/*.view.lkml"                # include all views in the views/ folder in this project
 
@@ -13,6 +14,7 @@ datagroup:pricing_datagroup {
 }
 
 explore: gcp_billing_export {
+  label: "Billing"
   join: gcp_billing_export__labels {
     sql: ,UNNEST(${gcp_billing_export.labels}) as gcp_billing_export__labels ;;
     relationship: one_to_one
@@ -40,6 +42,9 @@ explore: gcp_billing_export {
 }
 
 explore: cloud_pricing_export {
+  label: "Pricing Taxonomy"
+  hidden: yes
+  # right now only supporting BigQuery, Compute Engine and Cloud Storage for product specific analysis
   sql_always_where: ${service__description} IN (
         'Compute Engine',
         'Cloud Storage',
@@ -79,6 +84,7 @@ explore: cloud_pricing_export {
 }
 
 explore: recommendations_export {
+  label: "Recommendations"
   sql_always_where:
   -- Show only the latest recommendations. Use a grace period of 3 days to avoid data export gaps.
     _PARTITIONDATE = DATE_SUB(CURRENT_DATE(), INTERVAL 3 DAY)
@@ -88,17 +94,17 @@ explore: recommendations_export {
       'google.compute.disk.IdleResourceRecommender',
       'google.compute.instance.IdleResourceRecommender',
       'google.compute.instance.MachineTypeRecommender' )
-    AND ${primary_impact__cost_projection__cost__units} IS NOT NULL );;
+    AND ${primary_impact__cost_projection__cost__units} IS NOT NULL ;;
 
-  join: recommendations_export__target_resources {
-    view_label: "Recommendations Export: Target Resources"
-    sql: LEFT JOIN UNNEST(${recommendations_export.target_resources}) as recommendations_export_v2__target_resources ;;
-    relationship: one_to_many
-  }
+  # join: recommendations_export__target_resources {
+  #   view_label: "Recommendations Export: Target Resources"
+  #   sql: LEFT JOIN UNNEST(${recommendations_export.target_resources}) as recommendations_export__target_resources ;;
+  #   relationship: one_to_many
+  # }
 
-  join: recommendations_export__associated_insights {
-    view_label: "Recommendations Export: Associated Insights"
-    sql: LEFT JOIN UNNEST(${recommendations_export.associated_insights}) as recommendations_export_v2__associated_insights ;;
-    relationship: one_to_many
-  }
+  # join: recommendations_export__associated_insights {
+  #   view_label: "Recommendations Export: Associated Insights"
+  #   sql: LEFT JOIN UNNEST(${recommendations_export.associated_insights}) as recommendations_export__associated_insights ;;
+  #   relationship: one_to_many
+  # }
 }

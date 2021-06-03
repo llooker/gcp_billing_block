@@ -48,36 +48,6 @@ view: gcp_billing_export {
     sql: ${TABLE}._PARTITIONTIME ;;
   }
 
-  # dimension: pk {
-  #   hidden: no
-  #   primary_key: yes
-  #   sql: CONCAT(
-  #       IFNULL(${billing_account_id}, ''),
-  #       IFNULL(CAST(${invoice_month} as string), ''),
-  #       IFNULL(${cost_type}, ''),
-  #       IFNULL(${service__id}, ''),
-  #       IFNULL(${sku__id}, ''),
-  #       IFNULL(CAST(${usage_start_raw} as string), ''),
-  #       IFNULL(${TABLE}.project.id, ''),
-  #       IFNULL(CAST(${labels_string} as string), ''),
-  #       IFNULL(CAST(${system_labels_string} as string), ''),
-  #       IFNULL(${location__location}, ''),
-  #       IFNULL(${adjustment_info__id}, ''),
-  #       IFNULL(CAST(${export_raw} as string), ''),
-  #       IFNULL(CAST(${currency} as string), ''));;
-  # }
-
-  # dimension: labels_string {
-  #   hidden: no
-  #   type: string
-  #   sql: (SELECT string_agg(concat(key,':',value)) FROM UNNEST(${labels})) ;;
-  # }
-
-  # dimension: system_labels_string {
-  #   hidden: no
-  #   type: string
-  #   sql: (SELECT string_agg(concat(key,':',value)) FROM UNNEST(${system_labels})) ;;
-  # }
 
   dimension: adjustment_info__description {
     type: string
@@ -243,6 +213,18 @@ view: gcp_billing_export {
     sql: ${TABLE}.service.description ;;
     group_label: "Service"
     group_item_label: "Description"
+    link: {
+      label: "{% if value contains 'BigQuery' %} BigQuery Deep Dive {% endif %}"
+      url: "/dashboards-next/80"
+    }
+    link: {
+      label: "{% if value contains 'Compute Engine' %} Compute Engine Deep Dive {% endif %}"
+      url: "/dashboards-next/74"
+    }
+    link: {
+      label: "{% if value contains 'Cloud Storage' %} Cloud Storage Deep Dive {% endif %}"
+      url: "/dashboards-next/77"
+    }
   }
 
   dimension: service__id {
@@ -313,21 +295,6 @@ view: gcp_billing_export {
     group_item_label: "Calculated Unit"
   }
 
-  measure: usage__amount_in_calculated_units {
-    value_format_name: decimal_2
-    type: sum
-    sql: CASE
-      -- VCPU RAM
-        WHEN usage.pricing_unit = 'gibibyte hour' THEN ${usage__amount_in_pricing_units}/24
-      -- VCPU Cores
-        WHEN usage.pricing_unit = 'hour' THEN ${usage__amount_in_pricing_units}/24
-      -- PD Storage
-      -- WHEN usage.pricing_unit = 'gibibyte month' THEN ROUND(SUM(usage.amount_in_pricing_units) * 30, 2)
-      ELSE ${usage__amount_in_pricing_units}
-    END;;
-    group_item_label: "Total Amount in Calculated Units"
-  }
-
   dimension_group: usage_end {
     type: time
     timeframes: [
@@ -364,16 +331,33 @@ view: gcp_billing_export {
     drill_fields: [project__name]
   }
 
+  measure: usage__amount_in_calculated_units {
+    value_format_name: decimal_2
+    type: sum
+    sql: CASE
+      -- VCPU RAM
+        WHEN usage.pricing_unit = 'gibibyte hour' THEN ${usage__amount_in_pricing_units}/24
+      -- VCPU Cores
+        WHEN usage.pricing_unit = 'hour' THEN ${usage__amount_in_pricing_units}/24
+      -- PD Storage
+      -- WHEN usage.pricing_unit = 'gibibyte month' THEN ROUND(SUM(usage.amount_in_pricing_units) * 30, 2)
+      ELSE ${usage__amount_in_pricing_units}
+    END;;
+    group_item_label: "Total Amount in Calculated Units"
+    drill_fields: [project__name,service__description,total_cost, total_usage_amount]
+  }
+
   measure: total_usage_amount {
     type: sum
     sql: ${usage__amount} ;;
+    drill_fields: [project__name,service__description,total_cost, total_usage_amount]
   }
 
   measure: total_cost {
     type: sum
     sql: ${cost} ;;
     value_format: "#,##0.00"
-    html: {{ currency_symbol._value }}{{ rendered_value }};;
+    html: <a href="#drillmenu" target="_self">{{ currency_symbol._value }}{{ rendered_value }}</a>;;
     drill_fields: [project__name,service__description,total_cost]
   }
 
@@ -381,7 +365,7 @@ view: gcp_billing_export {
     type: number
     sql: ${total_cost} - ${total_amount};;
     value_format: "#,##0.00"
-    html: {{ currency_symbol._value }}{{ rendered_value }};;
+    html: <a href="#drillmenu" target="_self">{{ currency_symbol._value }}{{ rendered_value }}</a>;;
     drill_fields: [project__name,service__description,total_cost, gcp_billing_export__credits.total_amount]
   }
 
@@ -389,7 +373,7 @@ view: gcp_billing_export {
     label: "Total Credit Amount"
     type: sum
     value_format: "#,##0.00"
-    html: {{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }};;
+    html: <a href="#drillmenu" target="_self">{{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }}</a>;;
     sql: -1*${gcp_billing_export__credits.amount} ;;
     drill_fields: [gcp_billing_export__credits.type,gcp_billing_export__credits.total_amount]
   }
@@ -398,7 +382,7 @@ view: gcp_billing_export {
     view_label: "Credits"
     type: sum
     value_format: "#,##0.00"
-    html: {{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }};;
+    html: <a href="#drillmenu" target="_self">{{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }}</a>;;
     sql: -1*${gcp_billing_export__credits.amount} ;;
     filters: [gcp_billing_export__credits.type: "SUSTAINED_USAGE_DISCOUNT"]
     drill_fields: [gcp_billing_export__credits.id,gcp_billing_export__credits.name,total_amount]
@@ -408,7 +392,7 @@ view: gcp_billing_export {
     view_label: "Credits"
     type: sum
     value_format: "#,##0.00"
-    html: {{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }};;
+    html: <a href="#drillmenu" target="_self">{{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }}</a>;;
     sql: -1*${gcp_billing_export__credits.amount} ;;
     filters: [gcp_billing_export__credits.type: "COMMITTED_USAGE_DISCOUNT, COMMITTED_USAGE_DISCOUNT_DOLLAR_BASE"]
     drill_fields: [gcp_billing_export__credits.id,gcp_billing_export__credits.name,total_amount]
@@ -418,7 +402,7 @@ view: gcp_billing_export {
     view_label: "Credits"
     type: sum
     value_format: "#,##0.00"
-    html: {{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }};;
+    html: <a href="#drillmenu" target="_self">{{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }}</a>;;
     sql: -1*${gcp_billing_export__credits.amount} ;;
     filters: [gcp_billing_export__credits.type: "PROMOTION"]
     drill_fields: [gcp_billing_export__credits.id,gcp_billing_export__credits.name,total_amount]
