@@ -199,6 +199,21 @@ view: recommendations_export {
     type: string
     description: "Recommender ID of the recommender that has produced this recommendation"
     sql: ${TABLE}.recommender ;;
+    # action: {
+    #   label: "Change Status"
+    #   url: "https://desolate-refuge-53336.herokuapp.com/posts"
+    #   # icon_url: "https://sendgrid.com/favicon.ico"
+    #   form_param: {
+    #     name: "Subject"
+    #     type:select
+    #     option: {
+    #       name: "Mark as Completed"
+    #     }
+    #     option: {
+    #       name: "Mark as Failed"
+    #     }
+    #   }
+    # }
   }
 
   dimension: recommender_subtype {
