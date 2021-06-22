@@ -363,50 +363,13 @@ view: gcp_billing_export {
 
   measure: total_net_cost {
     type: number
-    sql: ${total_cost} - ${total_amount};;
+    sql: ${total_cost} - ${gcp_billing_export__credits.total_amount};;
     value_format: "#,##0.00"
     html: <a href="#drillmenu" target="_self">{{ currency_symbol._value }}{{ rendered_value }}</a>;;
     drill_fields: [project__name,service__description,total_cost, gcp_billing_export__credits.total_amount]
   }
 
-  measure: total_amount {
-    label: "Total Credit Amount"
-    type: sum
-    value_format: "#,##0.00"
-    html: <a href="#drillmenu" target="_self">{{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }}</a>;;
-    sql: -1*${gcp_billing_export__credits.amount} ;;
-    drill_fields: [gcp_billing_export__credits.type,gcp_billing_export__credits.total_amount]
-  }
 
-  measure: total_sustained_use_discount {
-    view_label: "Credits"
-    type: sum
-    value_format: "#,##0.00"
-    html: <a href="#drillmenu" target="_self">{{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }}</a>;;
-    sql: -1*${gcp_billing_export__credits.amount} ;;
-    filters: [gcp_billing_export__credits.type: "SUSTAINED_USAGE_DISCOUNT"]
-    drill_fields: [gcp_billing_export__credits.id,gcp_billing_export__credits.name,total_amount]
-  }
-
-  measure: total_committed_use_discount {
-    view_label: "Credits"
-    type: sum
-    value_format: "#,##0.00"
-    html: <a href="#drillmenu" target="_self">{{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }}</a>;;
-    sql: -1*${gcp_billing_export__credits.amount} ;;
-    filters: [gcp_billing_export__credits.type: "COMMITTED_USAGE_DISCOUNT, COMMITTED_USAGE_DISCOUNT_DOLLAR_BASE"]
-    drill_fields: [gcp_billing_export__credits.id,gcp_billing_export__credits.name,total_amount]
-  }
-
-  measure: total_promotional_credit {
-    view_label: "Credits"
-    type: sum
-    value_format: "#,##0.00"
-    html: <a href="#drillmenu" target="_self">{{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }}</a>;;
-    sql: -1*${gcp_billing_export__credits.amount} ;;
-    filters: [gcp_billing_export__credits.type: "PROMOTION"]
-    drill_fields: [gcp_billing_export__credits.id,gcp_billing_export__credits.name,total_amount]
-  }
 }
 
 view: gcp_billing_export__labels {
@@ -458,6 +421,45 @@ view: gcp_billing_export__credits {
     type: string
     sql: ${TABLE}.type ;;
     drill_fields: [name]
+  }
+
+  measure: total_amount {
+    label: "Total Credit Amount"
+    type: sum
+    value_format: "#,##0.00"
+    html: <a href="#drillmenu" target="_self">{{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }}</a>;;
+    sql: -1*${amount} ;;
+    drill_fields: [gcp_billing_export__credits.type,gcp_billing_export__credits.total_amount]
+  }
+
+  measure: total_sustained_use_discount {
+    view_label: "Credits"
+    type: sum
+    value_format: "#,##0.00"
+    html: <a href="#drillmenu" target="_self">{{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }}</a>;;
+    sql: -1*${amount} ;;
+    filters: [gcp_billing_export__credits.type: "SUSTAINED_USAGE_DISCOUNT"]
+    drill_fields: [gcp_billing_export__credits.id,gcp_billing_export__credits.name,total_amount]
+  }
+
+  measure: total_committed_use_discount {
+    view_label: "Credits"
+    type: sum
+    value_format: "#,##0.00"
+    html: <a href="#drillmenu" target="_self">{{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }}</a>;;
+    sql: -1*${amount} ;;
+    filters: [gcp_billing_export__credits.type: "COMMITTED_USAGE_DISCOUNT, COMMITTED_USAGE_DISCOUNT_DOLLAR_BASE"]
+    drill_fields: [gcp_billing_export__credits.id,gcp_billing_export__credits.name,total_amount]
+  }
+
+  measure: total_promotional_credit {
+    view_label: "Credits"
+    type: sum
+    value_format: "#,##0.00"
+    html: <a href="#drillmenu" target="_self">{{ gcp_billing_export.currency_symbol._value }}{{ rendered_value }}</a>;;
+    sql: -1*${amount} ;;
+    filters: [gcp_billing_export__credits.type: "PROMOTION"]
+    drill_fields: [gcp_billing_export__credits.id,gcp_billing_export__credits.name,total_amount]
   }
 }
 
