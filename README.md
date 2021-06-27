@@ -1,4 +1,4 @@
-**NOTE: This block requires the billing data export and recommendations data export be set up with a Big Query sink and the export running daily. See this link for [more information on setting up the billing export](https://cloud.google.com/billing/docs/how-to/export-data-bigquery), this link for [more information on setting up the recommendations export](https://cloud.google.com/recommender/docs/bq-export/export-recommendations-to-bq#creating_a_data_transfer_for_recommendations), and make sure data is in BigQuery before attempting to use this block:**
+**NOTE: This block requires the billing data export and recommendations data export be set up with a Big Query sink and the export running daily. See this link for [more information on setting up the billing export](https://cloud.google.com/billing/docs/how-to/export-data-bigquery), this link for [more information on setting up the recommendations export](https://cloud.google.com/recommender/docs/bq-export/export-recommendations-to-bq#creating_a_data_transfer_for_recommendations), and make sure data is in BigQuery before attempting to use this block. If you don't want to use the recommendations export, you may want to hide the reccomendations_export explore and the Recommendations Dashboard will show errors**
 
 ___
 # Readme: Google Cloud Billing Looker Block
@@ -14,7 +14,7 @@ With the Google Cloud Billing Block, you can:
 
 ### Block Info & Structure
 
-This block is modeled on the [Google Cloud Billing Export schema](https://cloud.google.com/billing/docs/how-to/export-data-bigquery#data-tables) as well as the [Recommendations and Insights schema](https://cloud.google.com/recommender/docs/bq-export/export-recommendations-to-bq#example_queries). 
+This block is modeled on the [Google Cloud Billing Export schema](https://cloud.google.com/billing/docs/how-to/export-data-bigquery#data-tables) as well as the [Recommendations and Insights schema](https://cloud.google.com/recommender/docs/bq-export/export-recommendations-to-bq#example_queries).
 
 There are several view files:
 - [gcp_billing_export](/views/gcp_billing_export.view.lkml) - fields modeled on top of the Google Cloud Billing Export table
@@ -25,11 +25,11 @@ There are several view files:
 
 ### Customizing the Model
 
-When you install this block into your Looker instance using the marketplace, you can create custom fields in the refinements.lkml file. 
+When you install this block into your Looker instance using the marketplace, you can create custom fields in the refinements.lkml file.
 
 #### Leveraging Labels as Custom Dimensions
 
-In Google Cloud, project labels can be used to specify things like the team who owns the project or the cost center for billing. The Project labels are available as an array of key value pairs. If we were storing the label using the key 'cost_center' then we could create a dimensions specifically for cost center using the LookML like below. 
+In Google Cloud, project labels can be used to specify things like the team who owns the project or the cost center for billing. The Project labels are available as an array of key value pairs. If we were storing the label using the key 'cost_center' then we could create a dimensions specifically for cost center using the LookML like below.
 
 ```
 view: +gcp_billing_export__project__labels {
@@ -40,7 +40,8 @@ view: +gcp_billing_export__project__labels {
 }
 ```
 
-#### Incorporating Folder Hierarchy and Project Owners (Coming Soon)
+#### Incorporating Folder Hierarchy and Project Owners
 
-#### Taking Action on Remcommendations (Coming Soon)
+You may want to perform some analyses that leverage the Google Cloud folder structure. For example, if one department has all projects within a folder you can slice data by that folder to see department level metrics. One way to accomplish this would be to leverage this open source [Cloud Function](https://github.com/pmenglund/folder-lookup) to pipe resource hierarchy data into BigQuery. You will then need to add additional views into the project.
 
+#### Taking Action on Remcommendations (coming soon)
