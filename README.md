@@ -23,6 +23,8 @@ There are several view files:
 - [period_over_period](/views/period_over_period.view.lkml) - fields specific to period over period analysis, for example looking at current Year to Date spend compared to Prior
 - [currency_symbols](/views/currency_symbols.view.lkml) - customizes the html for spend metrics to include the currency symbol specific to the currency set in the billing export
 
+Note: this block leverages [presistent derived tables](https://docs.looker.com/data-modeling/learning-lookml/derived-tables#temporary_and_persistent_derived_tables) and [incremental derived tables](https://docs.looker.com/data-modeling/learning-lookml/derived-tables#incrementally_building_pdts). Please make sure these are enabled in your Looker instance in order to use.
+
 ### Customizing the Model
 
 When you install this block into your Looker instance using the marketplace, you can create custom fields in the refinements.lkml file.
@@ -44,4 +46,6 @@ view: +gcp_billing_export__project__labels {
 
 You may want to perform some analyses that leverage the Google Cloud folder structure. For example, if one department has all projects within a folder you can slice data by that folder to see department level metrics. One way to accomplish this would be to leverage this open source [Cloud Function](https://github.com/pmenglund/folder-lookup) to pipe resource hierarchy data into BigQuery. You will then need to add additional views into the project.
 
-#### Taking Action on Remcommendations (coming soon)
+#### Taking Action on Remcommendations
+
+When using the recommendations data, you may want to mark a recommendation as claimed if you plan to apply the recommended chanes. In Looker, you can use a [field-level action](https://docs.looker.com/reference/field-params/action) to send a POST request to [an action server](https://docs.looker.com/sharing-and-publishing/action-hub#building_a_custom_action) and hit the [recommendations API.](https://cloud.google.com/recommender/docs/using-api#mark_a_recommendation_as_claimed)
