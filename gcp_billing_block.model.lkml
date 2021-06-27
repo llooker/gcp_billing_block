@@ -1,7 +1,8 @@
-connection: "leigha-bq-dev"
+connection: "@{CONNECTION}"
 label: "Google Cloud Billing"
 
-include: "/views/*.view.lkml"                # include all views in the views/ folder in this project
+include: "/views/*.view.lkml"
+include: "/dashboards/*"
 
 datagroup:billing_datagroup {
   sql_trigger: select max(export_time) from`anilgcp-co-dev.billing.gcp_billing_export_public`;;

@@ -4,7 +4,7 @@ view: gcp_billing_export {
     datagroup_trigger: billing_datagroup
     increment_key: "export_date"
     increment_offset: 0
-    sql: select *, generate_uuid() as pk from `anilgcp-co-dev.billing.gcp_billing_export_public`
+    sql: select *, generate_uuid() as pk from @{BILLING_TABLE}
     WHERE {% incrementcondition %} export_time {% endincrementcondition %};;
   }
 
@@ -196,7 +196,7 @@ view: gcp_billing_export {
     }
     link: {
       label: "Project Deep Dive"
-      url: "/dashboards-next/63?Project%20ID={{ project__id._value }}"
+      url: "/dashboards-next/gcp_billing_block::project_deep_dive?Project%20ID={{ project__id._value }}"
     }
   }
 
@@ -215,15 +215,15 @@ view: gcp_billing_export {
     group_item_label: "Description"
     link: {
       label: "{% if value contains 'BigQuery' %} BigQuery Deep Dive {% endif %}"
-      url: "/dashboards-next/80"
+      url: "/dashboards-next/gcp_billing_block::bigquery_insights?Project%20ID={{ _filters['gcp_billing_export.project__id'] | url_encode }}"
     }
     link: {
       label: "{% if value contains 'Compute Engine' %} Compute Engine Deep Dive {% endif %}"
-      url: "/dashboards-next/74"
+      url: "/dashboards-next/gcp_billing_block::compute_engine_insights?Project%20ID={{ _filters['gcp_billing_export.project__id'] | url_encode }}"
     }
     link: {
       label: "{% if value contains 'Cloud Storage' %} Cloud Storage Deep Dive {% endif %}"
-      url: "/dashboards-next/77"
+      url: "/dashboards-next/gcp_billing_block::cloud_storage_insights?Project%20ID={{ _filters['gcp_billing_export.project__id'] | url_encode }}"
     }
   }
 

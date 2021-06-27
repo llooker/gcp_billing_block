@@ -163,7 +163,7 @@ view: pricing {
 
 
 view: cloud_pricing_export {
-  sql_table_name: `anilgcp-co-dev.billing.cloud_pricing_export` ;;
+  sql_table_name: @{PRICING_TABLE} ;;
 
   dimension_group: _partitiondate {
     type: time

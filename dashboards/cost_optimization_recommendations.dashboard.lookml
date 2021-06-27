@@ -25,7 +25,8 @@
     conditional_formatting_include_nulls: false
     series_types: {}
     defaults_version: 1
-    listen: {}
+    listen:
+      Project ID: recommendations_export.cloud_entity_id
     row: 4
     col: 19
     width: 5
@@ -78,6 +79,8 @@
     conditional_formatting_include_nulls: false
     series_types: {}
     defaults_version: 1
+    listen:
+      Project ID: recommendations_export.cloud_entity_id
     row: 17
     col: 19
     width: 5
@@ -143,7 +146,8 @@
     totals_color: "#808080"
     defaults_version: 1
     title_hidden: true
-    listen: {}
+    listen:
+      Project ID: recommendations_export.cloud_entity_id
     row: 7
     col: 0
     width: 16
@@ -218,6 +222,8 @@
     conditional_formatting_include_nulls: false
     defaults_version: 1
     title_hidden: true
+    listen:
+      Project ID: recommendations_export.cloud_entity_id
     row: 7
     col: 16
     width: 8
@@ -283,6 +289,8 @@
     totals_color: "#808080"
     defaults_version: 1
     title_hidden: true
+    listen:
+      Project ID: recommendations_export.cloud_entity_id
     row: 20
     col: 0
     width: 16
@@ -348,6 +356,8 @@
     conditional_formatting_include_nulls: false
     defaults_version: 1
     title_hidden: true
+    listen:
+      Project ID: recommendations_export.cloud_entity_id
     row: 20
     col: 16
     width: 8
@@ -374,3 +384,18 @@
     col: 0
     width: 5
     height: 3
+  filters:
+  - name: Project ID
+    title: Project ID
+    type: field_filter
+    default_value: ''
+    allow_multiple_values: true
+    required: false
+    ui_config:
+      type: tag_list
+      display: popover
+      options: []
+    model: gcp_billing_block
+    explore: recommendations_export
+    listens_to_filters: []
+    field: recommendations_export.cloud_entity_id

@@ -161,7 +161,8 @@
     conditional_formatting_include_totals: false
     conditional_formatting_include_nulls: false
     title_hidden: true
-    listen: {}
+    listen:
+      Project ID: gcp_billing_export.project__id
     row: 6
     col: 0
     width: 12
@@ -226,7 +227,8 @@
     conditional_formatting_include_totals: false
     conditional_formatting_include_nulls: false
     title_hidden: true
-    listen: {}
+    listen:
+      Project ID: gcp_billing_export.project__id
     row: 16
     col: 0
     width: 12
@@ -291,7 +293,8 @@
     conditional_formatting_include_totals: false
     conditional_formatting_include_nulls: false
     title_hidden: true
-    listen: {}
+    listen:
+      Project ID: gcp_billing_export.project__id
     row: 26
     col: 0
     width: 12
@@ -356,7 +359,8 @@
     conditional_formatting_include_totals: false
     conditional_formatting_include_nulls: false
     title_hidden: true
-    listen: {}
+    listen:
+      Project ID: gcp_billing_export.project__id
     row: 36
     col: 0
     width: 12
@@ -421,7 +425,8 @@
     conditional_formatting_include_totals: false
     conditional_formatting_include_nulls: false
     title_hidden: true
-    listen: {}
+    listen:
+      Project ID: gcp_billing_export.project__id
     row: 46
     col: 0
     width: 12
@@ -486,6 +491,8 @@
     conditional_formatting_include_totals: false
     conditional_formatting_include_nulls: false
     title_hidden: true
+    listen:
+      Project ID: gcp_billing_export.project__id
     row: 16
     col: 12
     width: 12
@@ -550,6 +557,8 @@
     conditional_formatting_include_totals: false
     conditional_formatting_include_nulls: false
     title_hidden: true
+    listen:
+      Project ID: gcp_billing_export.project__id
     row: 6
     col: 12
     width: 12
@@ -614,6 +623,8 @@
     conditional_formatting_include_totals: false
     conditional_formatting_include_nulls: false
     title_hidden: true
+    listen:
+      Project ID: gcp_billing_export.project__id
     row: 26
     col: 12
     width: 12
@@ -678,6 +689,8 @@
     conditional_formatting_include_totals: false
     conditional_formatting_include_nulls: false
     title_hidden: true
+    listen:
+      Project ID: gcp_billing_export.project__id
     row: 46
     col: 12
     width: 12
@@ -742,7 +755,24 @@
     conditional_formatting_include_totals: false
     conditional_formatting_include_nulls: false
     title_hidden: true
+    listen:
+      Project ID: gcp_billing_export.project__id
     row: 36
     col: 12
     width: 12
     height: 7
+  filters:
+  - name: Project ID
+    title: Project ID
+    type: field_filter
+    default_value: ''
+    allow_multiple_values: true
+    required: false
+    ui_config:
+      type: tag_list
+      display: popover
+      options: []
+    model: gcp_billing_block
+    explore: gcp_billing_export
+    listens_to_filters: []
+    field: gcp_billing_export.project__id
