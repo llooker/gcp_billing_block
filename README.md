@@ -23,6 +23,7 @@ There are several view files:
 - [period_over_period](/views/period_over_period.view.lkml) - fields specific to period over period analysis, for example looking at current Year to Date spend compared to Prior
 - [currency_symbols](/views/currency_symbols.view.lkml) - customizes the html for spend metrics to include the currency symbol specific to the currency set in the billing export
 
+Note: this block leverages [presistent derived tables](https://docs.looker.com/data-modeling/learning-lookml/derived-tables#temporary_and_persistent_derived_tables) and [incremental derived tables](https://docs.looker.com/data-modeling/learning-lookml/derived-tables#incrementally_building_pdts). Please make sure these are enabled in your Looker instance in order to use.
 
 ### Customizing the Model
 
