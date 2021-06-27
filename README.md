@@ -44,4 +44,6 @@ view: +gcp_billing_export__project__labels {
 
 You may want to perform some analyses that leverage the Google Cloud folder structure. For example, if one department has all projects within a folder you can slice data by that folder to see department level metrics. One way to accomplish this would be to leverage this open source [Cloud Function](https://github.com/pmenglund/folder-lookup) to pipe resource hierarchy data into BigQuery. You will then need to add additional views into the project.
 
-#### Taking Action on Remcommendations (coming soon)
+#### Taking Action on Remcommendations
+
+When using the recommendations data, you may want to mark a recommendation as claimed if you plan to apply the recommended chanes. In Looker, you can use a [field-level action](https://docs.looker.com/reference/field-params/action) to send a POST request to [an action server](https://docs.looker.com/sharing-and-publishing/action-hub#building_a_custom_action) and hit the [recommendations API.](https://cloud.google.com/recommender/docs/using-api#mark_a_recommendation_as_claimed)
