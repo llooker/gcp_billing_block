@@ -23,6 +23,7 @@ There are several view files:
 - [period_over_period](/views/period_over_period.view.lkml) - fields specific to period over period analysis, for example looking at current Year to Date spend compared to Prior
 - [currency_symbols](/views/currency_symbols.view.lkml) - customizes the html for spend metrics to include the currency symbol specific to the currency set in the billing export
 
+
 ### Customizing the Model
 
 When you install this block into your Looker instance using the marketplace, you can create custom fields in the refinements.lkml file.
