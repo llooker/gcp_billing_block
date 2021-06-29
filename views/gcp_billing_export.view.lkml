@@ -1,6 +1,8 @@
 view: gcp_billing_export {
   view_label: "Billing"
   derived_table: {
+    partition_keys: ["usage_start_date"]
+    cluster_keys: ["project__id"]
     datagroup_trigger: billing_datagroup
     increment_key: "export_date"
     increment_offset: 0
