@@ -1,0 +1,24 @@
+{
+  "label": "Google Cloud Billing",
+  "category_label": "Models",
+  "branding": {
+    "image_uri": "TODO",
+    "tagline": "Analyze spend across Google Cloud resources to make informed budget decisions and reduce expenses."
+  },
+
+  "constants": {
+    "CONNECTION": {
+      "label": "Connection Name",
+      "value_constraint": "connection"
+    },
+    "RECOMMENDATION_TABLE": { "label": "Recommendation Table" },
+    "BILLING_TABLE": { "label": "Billing Table" },
+    "PRICING_TABLE": { "label": "Pricing Table" }
+  },
+  "models": [
+    {
+      "name": "gcp_billing_block",
+      "connection_constant": "CONNECTION"
+    }
+  ]
+}
