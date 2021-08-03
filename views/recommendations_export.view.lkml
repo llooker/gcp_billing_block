@@ -269,7 +269,7 @@ view: recommendations_export {
   dimension: category {
     sql: CASE WHEN REGEXP_CONTAINS(${recommender},r'google.compute.disk.') THEN 'Persistent Disk' ELSE 'VM' END;;
   }
-  
+
   dimension: project_name {
     sql: (select array_to_string(array_agg(REGEXP_EXTRACT(tr, r'.*googleapis.com/projects/(.*)/(?:regions|zones)/.*')),", ") from unnest(target_resources) as tr);;
     link: {
@@ -278,7 +278,7 @@ view: recommendations_export {
     }
     link: {
       label: "Project Cost Dashboard"
-      url: "{% unless project_name._value contains ',' %}/dashboards-next/63?Project%20ID={{ cloud_entity_id._value }}{% endunless %}"
+      url: "{% unless project_name._value contains ',' %}/dashboards-next/gcp_billing_block::project_deep_dive?Project%20ID={{ cloud_entity_id._value }}{% endunless %}"
     }
   }
 
